@@ -1,0 +1,95 @@
+version: "3.9"
+
+services:
+  notion_postgres:
+    image: postgres:15.2
+    container_name: notion_postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - .env.db
+
+  notion_project:
+    build:
+      context: .
+    container_name: notion_django
+    ports:
+      - 8000:8000
+    depends_on:
+      - notion_postgres
+    volumes:
+      - static_volume:/notion/staticfiles
+      - media_volume:/notion/mediafiles
+    env_file:
+      - .env
+    command: gunicorn notion.wsgi:application --bind 0.0.0.0:8000
+
+  nginx:
+    build: ./nginx
+    container_name: notion_nginx
+    image: nginx:1.23.4-alpine-slim
+    volumes:
+      - ./logs/nginx:/var/log/nginx
+      - static_volume:/notion/staticfiles
+      - media_volume:/notion/mediafiles
+    depends_on:
+      - notion_project
+    ports:
+      - "${NGINX_EXTERNAL_PORT}:80"
+
+  redis:
+    image: redis:7.0.11-alpine
+    container_name: notion_redis
+    hostname: redis
+    restart: always
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+      - "redis:/data"
+    ports:
+      - "6019:6379"
+    command: redis-server /usr/local/etc/redis/redis.conf
+
+  worker:
+    build:
+      context: .
+    command: celery -A notion worker --loglevel=info
+    volumes:
+      - static_volume:/notion/staticfiles
+      - media_volume:/notion/mediafiles
+    links:
+      - redis
+    depends_on:
+      - redis
+      - notion_postgres
+    env_file:
+      - .env
+      - .env.db
+
+  flower:
+    build:
+      context: .
+    hostname: flower
+    command: celery flower
+    volumes:
+      - static_volume:/notion/staticfiles
+      - media_volume:/notion/mediafiles
+    links:
+      - redis
+    depends_on:
+      - redis
+    ports:
+      - "5555:5555"
+
+volumes:
+  static_volume:
+  media_volume:
+  postgres_data:
+  redis: {}
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 172.25.0.0/24
+         gateway: 172.25.0.1
