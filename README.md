@@ -35,11 +35,17 @@ DEBUG=1
 DJANGO_ALLOWED_HOSTS=localhost 0.0.0.0 127.0.0.1 [::1]
 
 SQL_ENGINE=django.db.backends.postgresql
+
 SQL_DATABASE=notion
+
 SQL_USER=notion
+
 SQL_PASSWORD=notion
+
 SQL_HOST=notion_postgres
+
 SQL_PORT=5432
+
 DATABASE=postgres
 
 NGINX_EXTERNAL_PORT=80
@@ -51,7 +57,9 @@ NGINX_EXTERNAL_PORT=80
 =========================================================
 
 POSTGRES_USER=notion
+
 POSTGRES_PASSWORD=notion
+
 POSTGRES_DB=notion
 
 =========================================================
