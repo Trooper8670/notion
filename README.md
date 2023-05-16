@@ -19,6 +19,7 @@ In order for the project to compile in Docker you need 2 env files.
 .env
 
 =========================================================
+
 SECRET_KEY = 'django-insecure-***'
 
 ###### # SECRET_KEY you can get using a generator (search in Google)
@@ -48,6 +49,7 @@ NGINX_EXTERNAL_PORT=80
 .env.db
 
 =========================================================
+
 POSTGRES_USER=notion
 POSTGRES_PASSWORD=notion
 POSTGRES_DB=notion
