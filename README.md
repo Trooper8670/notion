@@ -77,3 +77,7 @@ docker-compose -f docker-compose.yml exec notion_project python manage.py collec
 docker-compose -f docker-compose.yml exec notion_project python manage.py createsuperuser
 
 docker-compose down -v
+
+And you also need to create a folder for nginx logs in main directory
+
+logs/nginx/
